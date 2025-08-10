@@ -1,12 +1,13 @@
 # Introduction
-From time to time i do some "research", by research i hereby mean, that i try to test / reevaluate results that i have seen on different sources (books, youtube, disussions with others ..). In this repository i share my results with the world ;), in the hope that others are also interested in such results.
+From time to time, I do some “research.” By *research*, I mean testing and re-evaluating results I’ve encountered from various sources — books, YouTube videos, discussions with others, and more.  
+In this repository, I share my findings with the world 😉, hoping that others might also find them interesting.  
 
-Every subfolder in the "Content" folder in this repository tackles a different topic in more or less random order (some may only contain links to already published content, as i do not want to republish already published content).
+Each subfolder in the **Content** directory covers a different topic, presented in no particular order. Some folders may contain only links to content I’ve already published, since I prefer not to duplicate my own work here.
 
 
 | Folder | Description |
 | --- | --- |
-| [CPU branch prediction](Content/CPU_branch_prediction_unit) | demo that evaluates the benefit of modern CPU branch prediction units and how we can benefit this knowledge into writing code |
+| [CPU branch prediction](Content/CPU_branch_prediction_unit) | Demonstration evaluating the benefits of modern CPU branch prediction units and how this knowledge can be applied to writing more efficient code. |
 
 
 ## License
