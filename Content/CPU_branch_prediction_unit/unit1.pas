@@ -90,12 +90,12 @@ Var
   tmp: Byte;
 Begin
   result.x := 0;
-  result.Y := 0;
+  result.y := 0;
   For i := 0 To high(a) Do Begin
     result.x := result.x + a[i];
     // Reduce the 128 bit to 0/1 and multiply a[i] with it, for the <128 Sum
     // By doing this we can get rid of the "If a[i] < 128 Then"
-    tmp := (Not (a[i] And $80) Shr 7) * a[i];
+    tmp := Byte(Not (a[i] Shr 7) * a[i]);
     result.y := result.y + tmp;
   End;
 End;
