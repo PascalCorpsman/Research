@@ -79,7 +79,7 @@ Begin
     result.x := result.x + a[i];
     // Remove branch (1) by "calculating"
     // Convert the if condition to 0 or 1, then multiply by a[i] during summation
-    tmp := (Not (a[i] And $80) Shr 7) * a[i];
+    tmp := Byte(Not (a[i] Shr 7) * a[i]);
     result.y := result.y + tmp;
   End; // (2)
 End;
