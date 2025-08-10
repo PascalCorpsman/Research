@@ -6,7 +6,7 @@ Every subfolder in this repository tackles a different topic in more or less ran
 
 | Folder | Description |
 | --- | --- |
-| [CPU branch prediction](CPU_branch_prediction_unit) | demo that evaluates the benefit of modern CPU branch prediction units and how we can benefit this knowledge into writing code |
+| [CPU branch prediction](Content/CPU_branch_prediction_unit) | demo that evaluates the benefit of modern CPU branch prediction units and how we can benefit this knowledge into writing code |
 
 
 
