@@ -79,7 +79,7 @@ Begin
     result.x := result.x + a[i];
     // Remove branch (1) by "calculating"
     // Convert the if condition to 0 or 1, then multiply by a[i] during summation
-    tmp := Byte(Not (a[i] Shr 7) * a[i]);
+    tmp := (Byte((Not a[i]) Shr 7)) * a[i];
     result.y := result.y + tmp;
   End; // (2)
 End;
@@ -94,13 +94,13 @@ As a final validation step, we also run the reduced-branch version on the sorted
 ## Conclusion
 - Flushing the CPU pipeline incurs a high performance cost.  
 - The CPU branch prediction unit can significantly improve code execution speed (compare **Unsorted** with **Sorted**).  
-- Branch prediction effectiveness depends on the algorithm’s structure—sorted data in this example improves predictability.  
-- When execution time is critical, it is beneficial to examine frequently executed code to remove branches or reorder data for better predictability.
+- Branch prediction effectiveness depends on the algorithm’s structure—sorted data in this example improves predictability(**Sorted**).  
+- When execution time is critical, it is beneficial to examine frequently executed code to remove branches or reorder data for better predictability (**Sorted**, **Unsorted2**).
 
 ### Discussion of Reliability of the Results
 
 The timing measurements shown in the screenshot and the provided code are highly dependent on the hardware used. However, the results should scale across different hardware—that is, the measured times should increase on slower CPUs and decrease on more powerful ones.
 
-If you do not observe any difference between the **Sorted** and **Unsorted** times, it is likely that your CPU does not have a branch prediction unit.
+If you do not observe any difference between the **Sorted** and **Unsorted** times, it is likely that your CPU does not have a branch prediction unit, or you run the tests on a Windows system (see [Gettickount64](../Gettickcount64)).
 
 All tests were executed on an **AMD Ryzen 7 7730U with Radeon Graphics**.
