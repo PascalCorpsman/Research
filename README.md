@@ -8,6 +8,7 @@ Each subfolder in the **Content** directory covers a different topic, presented 
 | Folder | Description |
 | --- | --- |
 | [CPU branch prediction](Content/CPU_branch_prediction_unit) | Demonstration evaluating the benefits of modern CPU branch prediction units and how this knowledge can be applied to writing more efficient code. |
+| [GetTickCount64](Content/Gettickcount64) | Evaluating the behavior of GetTickCount64 on Windows64 and Linux64 and conclusing to the schedulers of the OS's |
 
 
 ## License
