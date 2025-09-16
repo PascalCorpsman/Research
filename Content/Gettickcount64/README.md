@@ -70,6 +70,7 @@ The results confirmed this hypothesis 😉.
 Starting with a rough guess, I found that on Windows64 there are two factors causing the observed behavior:  
 - The Windows64 scheduler operates in 16 ms slices (see [Test 1](#reproducing-the-original-behavior-from-biosim) and [Test 3](#how-long-is-sleep1)).  
 - The `GetTickCount64` function on Windows64 also reports time in 16 ms slices (see [Test 3](#how-long-is-sleep1) and [Test 4](#does-gettickcount64-work-correctly)).  
+- The effect does not make a difference when used in single ore multithread mode (see [Test 1](#reproducing-the-original-behavior-from-biosim) and [Test 2](#single-threaded-load-analysis))
 
 On Linux64, everything behaves as expected.
 
