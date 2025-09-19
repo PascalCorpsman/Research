@@ -8,7 +8,7 @@ In this “research,” I compare the Linux64 and Windows64 versions and try to 
 
 - The Windows scheduler operates in 16 ms time slices.  
 - Avoid using `GetTickCount64` (use TEpikTimer instead) for time measurings near or smaller 16ms (on Windows).
-- Don't `TThread` when for handling of very short tasks (near or smaller 16ms)(on Windows).
+- Don't use `TThread` or `mtprocs.pas` when handling very short tasks (near or smaller 16ms)(on Windows).
 - Linux uses don't have to worry ;).
 
 ### Detailed Discussion
