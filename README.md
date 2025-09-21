@@ -12,4 +12,4 @@ Each subfolder in the **Content** directory covers a different topic, presented 
 
 
 ## License
-All sourcecode files do have their own license header included at the top, for all other files in this repository see license.md for further informations.
+All sourcecode files do have their own license header included at the top, for all other files in this repository see [license.md](license.md) for further informations.
