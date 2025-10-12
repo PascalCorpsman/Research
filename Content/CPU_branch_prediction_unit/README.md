@@ -16,10 +16,9 @@ Modern CPUs are organized in pipelines, which means that a single instruction wr
 
 If you want to learn more about CPU pipelines, I recommend starting with the [Wikipedia article on instruction pipelining](https://en.wikipedia.org/wiki/Instruction_pipelining).
 
+Pipelines allow the CPU to process multiple instructions simultaneously, increasing hardware utilization. However, when branches are involved, pipeline efficiency can be significantly reduced. Instead of waiting to determine which branch will be taken, the CPU speculatively fills the pipeline with one possible path. If this guess is wrong, all instructions already in the pipeline must be discarded and replaced with those from the correct branch — a process known as *pipeline flushing*, which costs valuable CPU cycles and slows down program execution.
 
-Pipelines allow the CPU to process multiple instructions simultaneously, increasing hardware utilization. However, when it comes to branches, pipeline efficiency can be significantly reduced. Without branch prediction, the CPU must wait until the correct branch is known before filling the pipeline. This means that when a branch occurs, the pipeline can only be filled with one possible branch’s instructions, and if it turns out to be the other branch, all instructions already in the pipeline must be discarded and replaced with the correct ones. This flushing process costs CPU cycles and slows down program execution.
-
-To tackle this issue, modern CPUs include branch prediction units that try to guess which branch will be taken, reducing the performance loss caused by pipeline flushing.
+To tackle this issue, modern CPUs include branch prediction units that attempt to guess which branch will be taken before the actual condition is evaluated. They base these guesses on the outcomes of previous branch executions, using techniques like dynamic history tracking or pattern tables [Wikipedia article on branch predictor](https://en.wikipedia.org/wiki/Branch_predictor). When the prediction is correct, the CPU can continue executing without interruption; when it’s wrong, the pipeline must still be flushed and refilled, but on average the overall performance loss is greatly reduced.
 
 To illustrate this better, let's consider the following example:
 
