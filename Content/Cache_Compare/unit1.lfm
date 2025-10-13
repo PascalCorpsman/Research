@@ -230,21 +230,27 @@ object Form1: TForm1
         Marks.LabelBrush.Style = bsClear
         Minors = <>
         Title.LabelBrush.Style = bsClear
+        OnGetMarkText = Chart1AxisList1GetMarkText
       end>
+    Legend.Visible = True
     Title.Text.Strings = (
       'TAChart'
     )
     Anchors = [akTop, akLeft, akRight, akBottom]
     object L1: TLineSeries
+      Title = 'L1'
       LinePen.Color = clRed
     end
     object L2: TLineSeries
+      Title = 'L2'
       LinePen.Color = clMaroon
     end
     object L3: TLineSeries
+      Title = 'L3'
       LinePen.Color = clFuchsia
     end
     object Ram: TLineSeries
+      Title = 'RAM'
       LinePen.Color = clAqua
     end
   end

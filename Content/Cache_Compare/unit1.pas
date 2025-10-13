@@ -57,6 +57,8 @@ Type
     Procedure Button6Click(Sender: TObject);
     Procedure Chart1AxisList0GetMarkText(Sender: TObject; Var AText: String;
       AMark: Double);
+    Procedure Chart1AxisList1GetMarkText(Sender: TObject; Var AText: String;
+      AMark: Double);
     Procedure FormClose(Sender: TObject; Var CloseAction: TCloseAction);
     Procedure FormCreate(Sender: TObject);
   private
@@ -202,7 +204,7 @@ Begin
 End;
 
 (*
- * V3 = impooved v2:
+ * V3 = improoved v2:
  *      same as v2 but with more deterministic "branches"
  *)
 
@@ -375,7 +377,7 @@ Begin
     sums[i] := Sum;
     StringGrid1.Cells[1 + i, index] := format('%4.2fms', [times[i]]);
     StringGrid1.AutoSizeColumns;
-    Curves[Index - 1].AddXY(i, ln(times[i]) / ln(10));
+    Curves[Index - 1].AddXY(i + 1, ln(times[i]) / ln(10));
     Application.ProcessMessages;
   End;
   For i := 0 To high(Benchmark) - 1 Do Begin
@@ -459,6 +461,12 @@ Procedure TForm1.Chart1AxisList0GetMarkText(Sender: TObject; Var AText: String;
   AMark: Double);
 Begin
   atext := format('%0.1f', [power(10, AMark)]);
+End;
+
+Procedure TForm1.Chart1AxisList1GetMarkText(Sender: TObject; Var AText: String;
+  AMark: Double);
+Begin
+  atext := 'V' + inttostr(round(AMark));
 End;
 
 Procedure TForm1.FormClose(Sender: TObject; Var CloseAction: TCloseAction);
