@@ -1,11 +1,5 @@
 # Cache compare
 
-
->
-> ! Attention !
-> This is a work in progress
->
-
 Inspired by the book [Game Physics Engine Development](https://www.amazon.de/-/en/Game-Physics-Engine-Development-Commercial-Grade/dp/0123819768) page 435 headline "Grouping Data for Areas of the Level", i wanted to see how much effect the location of data in memory really has to the execution time of a application and which other effects can speedup the executions.
 
 ### Short Summary
@@ -266,19 +260,35 @@ As expected, this variant shows a **clear performance improvement** across all a
 
 Similar to the transition from Variant V1 to V2, platform-specific differences emerge again in the predictable access configuration. On Linux, Variant V4 achieves a performance gain of approximately +22%, whereas on Windows, the improvement is only around +8%. The cause of this discrepancy remains unclear, but may be related to differences in compiler optimizations, memory alignment strategies, or runtime scheduling behavior.
 
+### Variant V5 – Local Variable Optimization Inspired by ChatGPT
+In Variant V5, a structural optimization was applied by copying object-global references - specifically IndexArray and DataArray - into local variables at the beginning of the function. This approach avoids repeated implicit dereferencing via the self pointer, which can introduce additional overhead during execution.
 
---------------- Hier weiter
+Measurements across both operating systems and access pattern configurations show a **consistent performance improvement**, with gains of up to **30%**. This result highlights the impact of reducing indirection and improving memory locality within the stack frame. It also demonstrates that even small structural changes at the code level can lead to substantial performance benefits, especially in tight computational loops.
 
-5. Inspiriert durch Chat GTP -> Object Variablen via Locale Referenzen -> noch mal gewaltiger speedup
-6. ersetzen von x := x + durch inc() -> weitere Steigerung 
+
+### Variant V6 – Use of Intrinsic Inc() Function
+In Variant V6, the summation operation Sum := Sum + DataArray[IndexArray[i]]; is replaced by the intrinsic Inc() function. Although this change appears minor, it leverages compiler-level optimizations and potentially more efficient instruction generation.
+
+Across all operating systems and access pattern configurations, this variant shows a **further performance** improvement of up to **5%**. This result underscores how even small syntactic adjustments - when aligned with compiler and CPU capabilities - can contribute to measurable gains in execution speed.
 
 ## Conclusion
 
-- Ausrichtung des Speichers  am wichtigsten, aber zum glück häufig linear.
-- Bei Betrachtung der verschiedenen Varianten konnte eine Deutliche verbesserung der Performence durch das "lokal" speichern der Variablen erreicht werden.
-- Die Branch Prediction reduktionen bestätigt
-- inc vs x := x +
+### Memory Alignment and Access Patterns
+
+The alignment and predictability of memory access are among the most critical factors influencing performance. In many practical scenarios, memory is accessed linearly, allowing CPUs to fully exploit cache prefetching mechanisms. However, when using object-oriented programming (OOP), there is a risk that objects may be placed arbitrarily in memory, leading to fragmented access patterns. For performance-critical applications, it is therefore advisable to avoid dynamic object allocation and instead use structured data types such as Object or Record, allocating data in contiguous arrays to ensure optimal memory locality.
+
+### Variant comparing
+
+- Replacing the modulo operation with a combination of summation and a conditional if statement (Variant V2) resulted in a measurable performance improvement on the Intel CPU. However, no such benefit was observed on the AMD CPU. The reason for this platform-specific behavior remains unclear, but may involve architectural differences in instruction handling or compiler-level optimizations.
+
+- Variants that reduced or eliminated conditional branching (e.g., Variant V3, V4) consistently outperformed those with unpredictable control flow. This confirms the sensitivity of modern CPUs to branch prediction accuracy (as already shown in the [CPU branch prediction](../CPU_branch_prediction_unit) research).
+
+- Storing frequently accessed object-global variables in local scope (Variant V5, V6) resulted in a significant performance improvement, with gains of up to 30%. This highlights the importance of minimizing indirection and leveraging stack-local access.
+
+- Replacing standard arithmetic operations with intrinsic functions such as Inc() (Variant V6) yielded modest but measurable improvements (up to 5%), demonstrating the potential of compiler-level optimizations even in seemingly trivial code changes.
+
+These findings emphasize that performance tuning is not solely a matter of algorithmic design, but also of understanding how code interacts with CPU architecture and compiler behavior.
 
 ### Discussion of Reliability of the Results
 
-All tests were executed on an **AMD Ryzen 7 7730U with Radeon Graphics**.
+All tests were executed on two systems: a Linux Mint Mate 22.2 machine (**AMD Ryzen 7 7730U with Radeon Graphics**) and a Windows 11 machine (**Intel® Core™ Ultra 7 Processor 165H**). While the absolute performance values depend on the computational power of the respective CPU, the relative performance trends across the different variants and access patterns are expected to remain consistent and comparable.
