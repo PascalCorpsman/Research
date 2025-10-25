@@ -2,6 +2,7 @@
 
 >
 > !! Attention !!
+> 
 > This is a work in progress
 >
 
@@ -35,19 +36,83 @@ Before diving into the analysis of the individual use cases, it is important to 
 
 ### Common Interface Challenges when integrating C Code
 
-ctypes
+The foundation of all data types typically lies in the basic types - such as `integer`, `boolean`, and `float`. In FreePascal, C-compatible equivalents of these types are provided in the `ctypes` unit. However, the naming conventions used in `ctypes` differ from those found in the widely adopted C standard header `stdint.h`. See the following table for the mappings:
 
-cdecl ( Bei der Definition aber auch bei Callbacks )
+| C Type (`stdint.h`) | FreePascal Type (`ctypes`) | Description                     
+|---------------------|----------------------------|---------------------------------
+| `int8_t`            | `cint8`                    | 8-bit signed integer            
+| `uint8_t`           | `cuint8`                   | 8-bit unsigned integer          
+| `int16_t`           | `cint16`                   | 16-bit signed integer           
+| `uint16_t`          | `cuint16`                  | 16-bit unsigned integer         
+| `int32_t`           | `cint32`                   | 32-bit signed integer           
+| `uint32_t`          | `cuint32`                  | 32-bit unsigned integer         
+| `int64_t`           | `cint64`                   | 64-bit signed integer           
+| `uint64_t`          | `cuint64`                  | 64-bit unsigned integer         
+| `float`             | `cfloat`                   | 32-bit floating point number   
+| `double`            | `cdouble`                  | 64-bit floating point number   
+| `long double`       | `clongdouble`              | Extended precision float       
+| `bool` / `_Bool`    | `cbool`                    | Boolean type (typically 1 byte)
+| `size_t`            | `csize_t`                  | Unsigned type used for sizes and indexing        
+| `char`              | `cchar`                    | Single character (typically 1 byte)              
+
+> 💡 Note: While the functionality is equivalent, the naming conventions differ. This can lead to confusion when porting C code or writing bindings, especially when using automated tools or macros that expect `stdint.h` names.
+
+Handling strings presents a particularly tricky challenge. In C, strings are represented as null-terminated arrays of characters and lack built-in memory management. In contrast, FreePascal strings are managed by the language itself and do not rely on null-termination. For interoperability, the appropriate type in FreePascal is `PChar`, which corresponds to a C-style `char*`.
+
+To ensure that structures are compatible with C, the compiler directive `{$PACKRECORDS C}` must be enabled in the respective unit. This instructs the FreePascal compiler to align the fields within a record according to C conventions. 
+
+>⚠️ Note that the `packed` keyword overrides this behavior in both languages and must be set consistently when porting code.
+
+This structure will be aligned just like the following C struct:
+```C
+struct Example {
+    uint8_t a;
+    uint32_t b;
+};
+```
+Converts to 
+```pascal
+{$mode objfpc}
+{$PACKRECORDS C}
+
+type
+  TExample = record
+    a: cuint8;
+    b: cuint32;
+  end;
+```
+> 💡 Without {$PACKRECORDS C}, FreePascal might insert padding differently, leading to mismatches in memory layout when exchanging data with C code.
+
+Enumeration types are generally straightforward to convert between C and FreePascal, as both compilers typically represent them internally as integers starting from index 0. However, in C it is quite common to use enums for array indexing. This becomes problematic when developers break the typical sequential numbering and assign custom constants to specific enum values - such as seen in projects like [FPC_Doom](https://github.com/PascalCorpsman/FPC_DOOM)
+
+Here is a example how to convert this:
+```c
+enum WeaponType {
+    WEAPON_PISTOL = 0,
+    WEAPON_SHOTGUN = 1,
+    WEAPON_ROCKET = 10
+};
+
+int weaponDamage[11]; // Indexed by WeaponType
+```
+converts to
+```pascal
+type
+  TWeaponType = (WEAPON_PISTOL = 0, WEAPON_SHOTGUN = 1, WEAPON_ROCKET = 10);
+var
+  weaponDamage: array[0..10] of Integer;
+begin
+  weaponDamage[Ord(WEAPON_ROCKET)] := 100;
+end;
+```
+
+Unions -> Bit packet
+Defines -> Const
 
 Pointer -> Var / Const
 Pointer -> Array
 
-Struct -> Record ( {$PACKRECORDS C} )
-enum -> 1. Element mit 0, Problem wenn im Enum "gesprungen" wird wie bei FPC_Doom -> Auffüllen mit "dummy" Elementen
-
-Unions -> Bit packet
-
-Defines -> Const
+cdecl ( Bei der Definition aber auch bei Callbacks )
 
 ! Achtung !, da hier definitionen sind, Kann der Compiler die Korrektheit zum C-Code nicht prüfen, wenn Möglich Tools wie H2pas einsetzen.
 
