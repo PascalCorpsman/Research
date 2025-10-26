@@ -1,0 +1,25 @@
+/******************************************************************************/
+/*                                                                            */
+/* Author      : Uwe Schächterle (Corpsman)                                   */
+/*                                                                            */
+/* This file is part of FPC_and_others                                        */
+/*                                                                            */
+/*  See the file license.md, located under:                                   */
+/*  https://github.com/PascalCorpsman/Software_Licenses/blob/main/license.md  */
+/*  for details about the license.                                            */
+/*                                                                            */
+/*               It is not allowed to change or remove this text from any     */
+/*               source file of the project.                                  */
+/*                                                                            */
+/******************************************************************************/
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+void print_HelloWorld_from_lib2(void);
+
+#ifdef __cplusplus
+}
+#endif
