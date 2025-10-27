@@ -13,7 +13,7 @@ In this "research" i try to evaluate the different ways on how to include code w
 ### Short Summary
 * use C compatibility when writing libs or adding plugin support to applications
 
-### Detailes Discussion
+### Detailed Discussion
 
 When developing applications with FreePascal, developers occasionally need to rely on external functionalities. These can range from simple code snippets to more complex integrations, such as connecting to a rendering engine or a sound library. Often, however, such functionalities are not natively available in FreePascal. The same applies when a developer wants to make their application extensible for others, for example through plugins - such as the AI plugin provided by [FPC_Atomic](https://github.com/PascalCorpsman/fpc_atomic).
 
@@ -177,4 +177,10 @@ Linux:
  - STRG + F9
  - Install_libshared1_so.sh ( Wenn das nicht gemacht wird crasht der Debugger, weil die Statisch gelinkte lib net da ist)
  - F9, run and have fun ;)
+
+## Conclusion
+
+- Das Einbinden von C Code ist Prinzipiell kein Problem
+- Das Einbinden von C++ Code bedingt eine "flattened" umgebung, da nicht direkt auf die Klasse zugegriffen werden kann (COM-Applicationen wurden nicht betrachtet)
+- Exceptions dürfen den C / C++ Code niemals verlassen !
 
