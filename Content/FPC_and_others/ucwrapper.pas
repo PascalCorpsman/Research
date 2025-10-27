@@ -28,8 +28,8 @@ Uses
 {$ENDIF}
 
 {$IFDEF Windows}
-{$LINKLIB msvcrt} // war libmsvcrt
-{$LINKLIB libstdc++-6}
+{$LINKLIB msvcrt}
+{$LINKLIB libstdc++.dll.a}
 {$ENDIF}
 
 {$IFDEF Darwin} // Untested
@@ -91,7 +91,7 @@ Procedure print_HelloWorld_from_a(); cdecl; external;
  * shared_lib1.h, statically linked
  *)
 
-Procedure print_HelloWorld_from_lib1(); cdecl; external{$IFDEF Windows}shared1.dll{$ELSE}{$IFDEF Darwin} 'libshared1.dylib'{$ELSE}{$ENDIF} 'libshared1.so'{$ENDIF};
+Procedure print_HelloWorld_from_lib1(); cdecl; external{$IFDEF Windows} 'shared1.dll'{$ELSE}{$IFDEF Darwin} 'libshared1.dylib'{$ELSE}{$ENDIF} 'libshared1.so'{$ENDIF};
 
 (*
  * shared_lib2.h runtime linked
@@ -133,7 +133,7 @@ Begin
   UnLoadLib();
   // At least under Linux it has to be a absolute path not relative !
   path := IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0)));
-  LibHandle := LoadLibrary(path + {$IFDEF Windows}shared2.dll{$ELSE}{$IFDEF Darwin} 'libshared2.dylib'{$ELSE}{$ENDIF} 'libshared2.so'{$ENDIF});
+  LibHandle := LoadLibrary(path + {$IFDEF Windows} 'shared2.dll'{$ELSE}{$IFDEF Darwin} 'libshared2.dylib'{$ELSE}{$ENDIF} 'libshared2.so'{$ENDIF});
   If LibHandle = 0 Then Begin
     Raise exception.create('Error, could not load shared2 lib.');
   End;
@@ -152,6 +152,30 @@ Begin
   LibHandle := 0;
   print_HelloWorld_from_lib2 := Nil;
 End;
+
+{$IFDEF Windows}
+
+(*
+ * this code was compilable and runnable unter Windows 11 using GCC 10.4.0
+ *)
+
+Function atexit(func: pointer): cint; cdecl public name{$IFDEF CPU64} 'atexit'{$ELSE} '_atexit'{$ENDIF};
+Begin
+  // Don't know what to do here ?
+  result := 0;
+End;
+
+Function __mingw_vfprintf(stdout: Pointer; __format: PChar; __local_argv: Array Of pointer): cint; cdecl public name{$IFDEF CPU64} '__mingw_vfprintf'{$ELSE} '___mingw_vfprintf'{$ENDIF};
+Begin
+  (*
+   * This is a bad eval hack, but at least on my Windows Test machine it worked ...
+   * It also does not take the \n into account !
+   *)
+  writeln(format(__format, [integer(__local_argv[0])]));
+  result := 0;
+End;
+
+{$ENDIF}
 
 End.
 

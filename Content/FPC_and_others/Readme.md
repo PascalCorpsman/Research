@@ -23,13 +23,13 @@ Depending on the scope of the code to be integrated, it can be beneficial to cho
 
 The following three use cases will be examined in detail:
 
-* **Transpiling from the source language to FreePascal**  
+* **Transpiling from the source language to FreePascal**
   Converting code written in another language into FreePascal-compatible code.
 
-* **Integrating libraries (.dll, .so, .dylib)**  
+* **Integrating libraries (.dll, .so, .dylib)**
   Linking external dynamic libraries to extend functionality.
 
-* **Special case: Integrating intermediate compilation artifacts (.a, .o)**  
+* **Special case: Integrating intermediate compilation artifacts (.a, .o)**
   Using compiled object files or static archives directly within FreePascal projects.
 
 Before diving into the analysis of the individual use cases, it is important to first consider the specific characteristics involved in integrating C code. These characteristics primarily concern the interface layer - namely, function calls and the handling of associated parameters. Since these aspects are relevant across all three use cases, they will be discussed collectively in this section.
@@ -38,22 +38,22 @@ Before diving into the analysis of the individual use cases, it is important to 
 
 The foundation of all data types typically lies in the basic types - such as `integer`, `boolean`, and `float`. In FreePascal, C-compatible equivalents of these types are provided in the `ctypes` unit. However, the naming conventions used in `ctypes` differ from those found in the widely adopted C standard header `stdint.h`. See the following table for the mappings:
 
-| C Type (`stdint.h`) | FreePascal Type (`ctypes`) | Description                     
+| C Type (`stdint.h`) | FreePascal Type (`ctypes`) | Description
 |---------------------|----------------------------|---------------------------------
-| `int8_t`            | `cint8`                    | 8-bit signed integer            
-| `uint8_t`           | `cuint8`                   | 8-bit unsigned integer          
-| `int16_t`           | `cint16`                   | 16-bit signed integer           
-| `uint16_t`          | `cuint16`                  | 16-bit unsigned integer         
-| `int32_t`           | `cint32`                   | 32-bit signed integer           
-| `uint32_t`          | `cuint32`                  | 32-bit unsigned integer         
-| `int64_t`           | `cint64`                   | 64-bit signed integer           
-| `uint64_t`          | `cuint64`                  | 64-bit unsigned integer         
-| `float`             | `cfloat`                   | 32-bit floating point number   
-| `double`            | `cdouble`                  | 64-bit floating point number   
-| `long double`       | `clongdouble`              | Extended precision float       
+| `int8_t`            | `cint8`                    | 8-bit signed integer
+| `uint8_t`           | `cuint8`                   | 8-bit unsigned integer
+| `int16_t`           | `cint16`                   | 16-bit signed integer
+| `uint16_t`          | `cuint16`                  | 16-bit unsigned integer
+| `int32_t`           | `cint32`                   | 32-bit signed integer
+| `uint32_t`          | `cuint32`                  | 32-bit unsigned integer
+| `int64_t`           | `cint64`                   | 64-bit signed integer
+| `uint64_t`          | `cuint64`                  | 64-bit unsigned integer
+| `float`             | `cfloat`                   | 32-bit floating point number
+| `double`            | `cdouble`                  | 64-bit floating point number
+| `long double`       | `clongdouble`              | Extended precision float
 | `bool` / `_Bool`    | `cbool`                    | Boolean type (typically 1 byte)
-| `size_t`            | `csize_t`                  | Unsigned type used for sizes and indexing        
-| `char`              | `cchar`                    | Single character (typically 1 byte)              
+| `size_t`            | `csize_t`                  | Unsigned type used for sizes and indexing
+| `char`              | `cchar`                    | Single character (typically 1 byte)
 
 > 💡 Note: While the functionality is equivalent, the naming conventions differ. This can lead to confusion when porting C code or writing bindings, especially when using automated tools or macros that expect `stdint.h` names.
 
@@ -161,10 +161,20 @@ Function memset(str: Pointer; c: integer; n: size_t): Pointer; cdecl public name
  * sonst sehen wir nichts.
  *)
 {$LINKLIB libmsvcrt}
-{$ENDIF}     
+{$ENDIF}
 
-3.4 Einbinden der Files via: {$Link obj\Filename.o}    
+3.4 Einbinden der Files via: {$Link obj\Filename.o}
 
 Vorteil: kann automatisiert im Prebuild angepasst werden, Debuggbar wenn gdb verwendet wird
 Nachteil: benötigt gcc compiler, ggf. Make und weitere (unter Windows eher ein Thema (ggf. Cygwin, MSys2), Linux (y))
+
+### Compile / run the demo application
+Windows:
+ - Umstellen build.sh -> build.bat
+ - ggf einrichten von MinGW ( oder vergleichbarem )
+ - F9
+Linux:
+ - STRG + F9
+ - Install_libshared1_so.sh ( Wenn das nicht gemacht wird crasht der Debugger, weil die Statisch gelinkte lib net da ist)
+ - F9, run and have fun ;)
 

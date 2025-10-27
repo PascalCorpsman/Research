@@ -37,7 +37,7 @@ REM ----------------------------------------------------------------------------
 REM C / C++ creation of a .a file
 REM -------------------------------------------------------------------------------
 
-set AFILE=%OBJDIR%\shared_a.a
+set AFILE=libshared_a.a
 
 REM delete old file if exists
 if exist "%AFILE%" del "%AFILE%"
@@ -52,16 +52,14 @@ REM ----------------------------------------------------------------------------
 REM C / C++ creation of libshared1.dll
 REM -------------------------------------------------------------------------------
 
-echo Creating libshared1.dll ...
-%CXX% -g -shared -o libshared1.dll C\shared_lib1.cpp
+echo Creating shared1.dll ...
+%CXX% -g -shared -o shared1.dll C\shared_lib1.cpp
 
 REM -------------------------------------------------------------------------------
 REM C / C++ creation of libshared2.dll
 REM -------------------------------------------------------------------------------
 
-echo Creating libshared2.dll ...
-%CXX% -g -shared -o libshared2.dll C\shared_lib2.cpp
+echo Creating shared2.dll ...
+%CXX% -g -shared -o shared2.dll C\shared_lib2.cpp
 
-echo Build finished!
-pause
 
