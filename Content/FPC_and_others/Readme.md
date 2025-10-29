@@ -1,23 +1,18 @@
 # FPC and others
 
->
-> !! Attention !!
-> 
-> This is a work in progress
->
+As a developer and user of a lot of other libraries like OpenGL or SDL there is often the need to include source code from other languages (like Phyton, C, C++, Java, node.js ..).
 
-As a developer and user of a lot of other libraries like OpenGL or SDL there is often the need to include source code from other languages (like Phyton, C, C++, ..).
-
-In this "research" i try to evaluate the different ways on how to include code written in other languages into a FreePascal application.
+In this "research" i try to evaluate the different ways on how to include code written in other languages into a FreePascal application and also give tipps and tricks on how to actually do this.
 
 ### Short Summary
 * use C compatibility when writing libs or adding plugin support to applications
+* evaluate carefully the pros and cons of the different techniques
 
 ### Detailed Discussion
 
 When developing applications with FreePascal, developers occasionally need to rely on external functionalities. These can range from simple code snippets to more complex integrations, such as connecting to a rendering engine or a sound library. Often, however, such functionalities are not natively available in FreePascal. The same applies when a developer wants to make their application extensible for others, for example through plugins - such as the AI plugin provided by [FPC_Atomic](https://github.com/PascalCorpsman/fpc_atomic).
 
-A common denominator that has emerged is the C programming language. Its structure is relatively simple, yet it provides everything necessary to extend applications. Instead of supporting *all* programming languages directly, FreePascal focuses on supporting C. This same decision has been made by the developers of many other languages as well. So, if you want to connect a Kotlin or Java application with FreePascal, C once again serves as the shared foundation.
+A common denominator that has emerged is the C programming language. Its structure is relatively simple, yet it provides everything necessary to extend applications. Instead of supporting *all* programming languages directly, FreePascal focuses on supporting C. This same decision has been made by the developers of many other languages as well. So, if you want to connect a e.g. Kotlin or Java application with FreePascal, C once again serves as the shared foundation.
 
 Depending on the scope of the code to be integrated, it can be beneficial to choose different approaches for incorporating it. The following sections will examine and compare various integration methods. Special attention will also be given to potential challenges and edge cases that may arise during implementation.
 
@@ -34,7 +29,7 @@ The following three use cases will be examined in detail:
 
 Before diving into the analysis of the individual use cases, it is important to first consider the specific characteristics involved in integrating C code. These characteristics primarily concern the interface layer - namely, function calls and the handling of associated parameters. Since these aspects are relevant across all three use cases, they will be discussed collectively in this section.
 
-### Common Interface Challenges when integrating C Code
+### Common Interface Challenges when integrating / porting C Code
 
 The foundation of all data types typically lies in the basic types - such as `integer`, `boolean`, and `float`. In FreePascal, C-compatible equivalents of these types are provided in the `ctypes` unit. However, the naming conventions used in `ctypes` differ from those found in the widely adopted C standard header `stdint.h`. See the following table for the mappings:
 
@@ -231,7 +226,7 @@ When porting code manually from another language to FreePascal, the following pr
 - **Risk of introducing new bugs** during translation
 - Requires **good understanding of the source language**, including its idioms and edge cases
 - **Hidden pitfalls**, such as subtle differences in memory layout, type sizes, or undefined behavior (see *[Lessons Learned](https://github.com/PascalCorpsman/FPC_DOOM/blob/main/lessons_learned.md)* from `FPC_DOOM`)
-- **Potential performance regressions**, some implememntations in FreePascal are inefficient (e.g. `tanh` implementation in `biosim`) see [here](https://forum.lazarus.freepascal.org/index.php?topic=47937.50) for furthor reference
+- **Potential performance regressions**, some implementations in FreePascal are inefficient (e.g. `tanh` implementation in `biosim`) see [here](https://forum.lazarus.freepascal.org/index.php?topic=47937.50) for further reference
   
 > 💡 In summary: manual transpiling is a powerful but demanding approach. It is best suited for projects where long-term maintainability, deep integration, or independence from C toolchains is a priority.
 
@@ -261,7 +256,7 @@ The use of AI systems as translation aids has become increasingly common. When A
 
 ## Integrating Libraries (`.dll`, `.so`, `.dylib`)
 
-The most commonly used approach for reusing external code in FreePascal is through dynamic libraries—platform-specific shared objects such as `.dll` (Windows), `.so` (Linux), or `.dylib` (macOS). This method allows developers to access complex functionality without having to port the entire codebase.
+The most commonly used approach for reusing external code in FreePascal is through dynamic libraries - platform-specific shared objects such as `.dll` (Windows), `.so` (Linux), or `.dylib` (macOS). This method allows developers to access complex functionality without having to port the entire codebase.
 
 To port the corresponding C header files, you can follow the guidelines outlined earlier in this article. Tools like [`h2pas`](https://wiki.freepascal.org/H2Pas) can assist in generating initial bindings, and AI-based tools may further the process—though manual review is always recommended.
 
@@ -297,47 +292,92 @@ In the following sections, the advantages and disadvantages of both approaches w
 - Error handling becomes more complex, as missing or incompatible libraries must be detected and managed manually.
 - Function calls are typically resolved via pointers, which can reduce code readability and increase the risk of runtime errors.
 
-### Special case: Integrating intermediate compilation artifacts (.a, .o)
-  3.1 Portierung Header wie 2.
-  3.2 .a Files "auspacken" zu .o files
-  
-3.3 Linken benötigt manchmal zusätzlich
-{$IFDEF Linux}
-{$LINKLIB c}
-{$ELSE}
-(*
- *
- * Einbinden des Standart C-Headers für 32-Bit, damit kann dann im C-Source
- * <stdio.h> und entsprechend printf verwendet werden :)
- *
- * !! ACHTUNG !!
- * Wenn dieses Feature Aktiv ist, muss der Hacken bei Win32-Gui Anwendung weg,
- * sonst sehen wir nichts.
- *)
-{$LINKLIB libmsvcrt}
-{$ENDIF}
+### Special Case: Integrating Intermediate Compilation Artifacts (.a, .o)
 
-3.4 Einbinden der Files via: {$Link obj\Filename.o}
+While the two approaches discussed above can be applied to many programming languages, this chapter focuses on a special case: integrating C/C++ artifacts into FreePascal.
 
-Vorteil: kann automatisiert im Prebuild angepasst werden, Debuggbar wenn gdb verwendet wird
-Nachteil: benötigt gcc compiler, ggf. Make und weitere (unter Windows eher ein Thema (ggf. Cygwin, MSys2), Linux (y))
+This scenario is relevant because C and C++ are extremely widespread, and their combination with FreePascal offers unique advantages. By leveraging intermediate compilation artifacts such as `.a` (static libraries) and `.o` (object files), developers can reuse existing codebases efficiently without requiring full source-level integration. Moreover, compiling these artifacts manually enables full debugging support within the Lazarus IDE, as developers can include debug symbols during the build process.
 
-### Compile / run the demo application
-Windows:
- - Umstellen build.sh -> build.bat
- - ggf einrichten von MinGW ( oder vergleichbarem )
- - F9
-Linux:
- - STRG + F9
- - Install_libshared1_so.sh ( Wenn das nicht gemacht wird crasht der Debugger, weil die Statisch gelinkte lib net da ist)
- - F9, run and have fun ;)
+The exact techniques for achieving this integration will be demonstrated using the provided demo code. For this reason, this section focuses on an overview and highlights only the key specifics rather than a full step-by-step guide.
 
+1. Port C/C++ Headers:<br>
+Convert the required headers to FreePascal units, either manually or using **H2Pas**.
+2. Link C/C++ libraries:<br>
+   - If the code uses standard C functions (e.g., `printf`), link the C runtime library:
+     ```pascal
+     {$IFDEF Windows}
+       {$LINKLIB msvcrt}
+     {$ELSE}
+       {$LINKLIB c}
+     {$ENDIF}
+     ```
+   - If the code uses C++ features, link the C++ standard library:
+     ```pascal
+     {$IFDEF Windows}
+       {$LINKLIB libstdc++.dll.a} // this could differ on your machine, depending on the used gcc   compiler
+     {$ELSE}
+       {$LINKLIB c++}
+     {$ENDIF}
+     ```
+3. Link g++ Output Files<br>
+   Depending on the artifact type:  
+   - For `.a` files (static libraries):
+     ```pascal
+     {$LINKLIB libshared_a.a}
+     ```
+
+   - For `.o` files (object files):
+     ```pascal
+     {$LINK obj/shared_o.o}
+     ```
+#### ✅ Advantages
+- Can be automated during the pre-build process, reducing manual effort.
+- Fully debuggable when using **GDB** and including debug symbols during compilation.
+- Enables reuse of existing C/C++ code without requiring full source-level integration.
+- Offers better performance compared to dynamic linking, as symbols are resolved at compile time.
+
+#### ❌ Disadvantages
+- Requires a working **GCC toolchain**, and often additional tools like **Make**.
+- On Windows, setup can be complex (e.g., **Cygwin**, **MSYS2**), while Linux environments are typically easier.
+- Increases build complexity, especially when mixing multiple platforms or architectures.
+- Potential for ABI incompatibilities between C/C++ and FreePascal if compiler settings differ.
+
+### Compile / Run the Demo Application
+Setting up the build environment differs significantly between Windows and Linux:  
+- **Windows:** Requires a proper GCC toolchain (e.g., MinGW) and may involve additional steps like configuring PATH variables or installing MSYS2/Cygwin for Unix-like tools.  
+- **Linux:** Typically easier, as GCC and Make are often pre-installed or available via package managers.  
+Make sure the correct toolchain is available before compiling to avoid linker errors.
+
+#### Windows:
+
+- As the uploaded code is designed to be used under Linux you need to switch from `build.sh` to `build.bat`.
+  ![](Windows_setup_Build_Mode.png)
+- Set up **MinGW** (or an equivalent toolchain) if not already installed.
+- Press **F9** to build and run the application.
+
+#### Linux:
+- Use **CTRL + F9** to compile.
+- Execute `install_libshared1_so.sh`  
+  *(If this step is skipped, the debugger will crash because the statically linked library is missing.)*
+- Press **F9**, run, and have fun 😉
+
+If everything worked correctly, the application should start and look approximately like this:
+![](preview.png)
+
+> **⚠️ Note:**
+> The output of the buttons is displayed in the console.  
+> - On **Windows**, the console appears automatically.  
+> - On **Linux**, the output can be viewed by enabling the console view under the debug menu.
+> 
 ## Conclusion
 
-Die Wahl der Technik (Transpiling, Library, artifakte) hängt von vielen Kriterien ab und muss im Einzellfall entschieden werden.
+The choice of technique (transpiling, linking libraries, or integrating compilation artifacts) depends on multiple criteria and must be evaluated on a case-by-case basis.
 
-Wird der Code nicht transpiliert müssen auf jeden Fall die folgenden Kriterien beachtet werden:
+If the code is **not transpiled**, the following considerations are essential:
 
-- Das Einbinden von C++ Code bedingt eine "flattened" umgebung, da nicht direkt auf die Klasse zugegriffen werden kann (COM-Applicationen wurden nicht betrachtet)
-- Exceptions dürfen den C / C++ Code niemals verlassen !
-
+- Integrating C++ code requires a *flattened* interface, as direct access to classes is not possible  
+  *(COM applications were not considered in this context).*
+- Exceptions must **never propagate** beyond the C/C++ boundary to avoid undefined behavior.
+- Ensure proper memory management across language boundaries to prevent leaks or crashes.
+- Pay attention to calling conventions and data type alignment to maintain ABI compatibility.
+- Debugging support depends on whether debug symbols are included during compilation and whether the Lazarus- IDE is configured correctly.
