@@ -34,7 +34,7 @@ echo Compiling C\shared_o.cpp to %OBJFILE% ...
 %CXX% %CXXFLAGS% -c C\shared_o.cpp -o %OBJFILE%
 
 REM -------------------------------------------------------------------------------
-REM C / C++ creation of a .a file
+REM C / C++ creation of .a file
 REM -------------------------------------------------------------------------------
 
 set AFILE=libshared_a.a

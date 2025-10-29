@@ -15,6 +15,9 @@
 Unit uCWrapper;
 
 {$MODE ObjFPC}{$H+}
+(*
+ * Generally needed for all records to be same in memory as C/C++ structs
+ *)
 {$PACKRECORDS C}
 
 Interface
@@ -22,6 +25,11 @@ Interface
 Uses
   Classes, SysUtils, ctypes;
 
+(*
+ * Only needed if "defaults" like allocation (C++) or console (C) is used
+ * If you do your own applications try to "not" use this includes at the first
+ * steps
+ *)
 {$IFDEF Linux}
 {$LINKLIB c} // support for printf
 {$LINKLIB stdc++} // support for new / delete
@@ -34,11 +42,17 @@ Uses
 
 {$IFDEF Darwin} // Untested
 {$LINKLIB c}
-{$LINKLIB c++}
+{$LINKLIB stdc++}
 {$ENDIF}
 
+(*
+ * Statically linked code created via g++ as .o
+ *)
 {$LINK obj/shared_o.o}
 
+(*
+ *Statically linkded code created via g++ as .a (including usually more than one .o file)
+ *)
 {$LINKLIB libshared_a.a}
 
 (*
@@ -123,7 +137,7 @@ Begin
 End;
 
 (*
- * shared_lib2.h runtime linked
+ * shared_lib2.h runtime linking
  *)
 
 Procedure LoadLib();
@@ -154,9 +168,9 @@ Begin
 End;
 
 {$IFDEF Windows}
-
 (*
- * this code was compilable and runnable unter Windows 11 using GCC 10.4.0
+ * In oder to be able to use the C++ Bindings from Windows, there was the need
+ * to give the Linker some "extra" function pointers to call ;)
  *)
 
 Function atexit(func: pointer): cint; cdecl public name{$IFDEF CPU64} 'atexit'{$ELSE} '_atexit'{$ENDIF};
@@ -169,8 +183,9 @@ Function __mingw_vfprintf(stdout: Pointer; __format: PChar; __local_argv: Array 
 Begin
   (*
    * This is a bad eval hack, but at least on my Windows Test machine it worked ...
-   * It also does not take the \n into account !
    *)
+  // !! Do not use this code in your own applications, this does only work because all
+  //    examples of the demo use a integer as param !!
   writeln(format(__format, [integer(__local_argv[0])]));
   result := 0;
 End;
