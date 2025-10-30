@@ -358,7 +358,7 @@ Make sure the correct toolchain is available before compiling to avoid linker er
 #### Linux:
 - Use **CTRL + F9** to compile.
 - Execute `install_libshared1_so.sh`  
-  *(If this step is skipped, the debugger will crash because the statically linked library is missing.)*
+  *(If this step is skipped, the debugger will crash because the implicid binded library is missing.)*
 - Press **F9**, run, and have fun 😉
 
 If everything worked correctly, the application should start and look approximately like this:
