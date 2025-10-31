@@ -356,6 +356,7 @@ Make sure the correct toolchain is available before compiling to avoid linker er
 - Press **F9** to build and run the application.
 
 #### Linux:
+- make "build.sh" executable (chmod +x build.sh)
 - Use **CTRL + F9** to compile.
 - Execute `install_libshared1_so.sh`  
   *(If this step is skipped, the debugger will crash because the implicid binded library is missing.)*
