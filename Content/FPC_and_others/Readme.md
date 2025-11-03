@@ -12,7 +12,9 @@ In this "research" i try to evaluate the different ways on how to include code w
 
 When developing applications with FreePascal, developers occasionally need to rely on external functionalities. These can range from simple code snippets to more complex integrations, such as connecting to a rendering engine or a sound library. Often, however, such functionalities are not natively available in FreePascal. The same applies when a developer wants to make their application extensible for others, for example through plugins - such as the AI plugin provided by [FPC_Atomic](https://github.com/PascalCorpsman/fpc_atomic).
 
-A common denominator that has emerged is the C programming language. Its structure is relatively simple, yet it provides everything necessary to extend applications. Instead of supporting *all* programming languages directly, FreePascal focuses on supporting C. This same decision has been made by the developers of many other languages as well. So, if you want to connect a e.g. Kotlin or Java application with FreePascal, C once again serves as the shared foundation.
+
+A common denominator that has emerged is the C programming language. Its structure is relatively simple, yet it provides everything necessary to extend applications. However, there are many versions of C. Code written in **C89** can usually be translated to FreePascal without major issues. Features introduced in later standards, such as the complex number type in **C99** or anonymous structures, cannot be transferred one-to-one.  
+The same principle applies to other programming languages as well. For example, if you want to connect a Kotlin or Java application with FreePascal, C once again serves as the shared foundation. Additionally, most system APIs are implemented in C, which further reinforces its role as the universal interface between different programming environments.
 
 Depending on the scope of the code to be integrated, it can be beneficial to choose different approaches for incorporating it. The following sections will examine and compare various integration methods. Special attention will also be given to potential challenges and edge cases that may arise during implementation.
 
@@ -33,24 +35,13 @@ Before diving into the analysis of the individual use cases, it is important to 
 
 The foundation of all data types typically lies in the basic types - such as `integer`, `boolean`, and `float`. In FreePascal, C-compatible equivalents of these types are provided in the `ctypes` unit. However, the naming conventions used in `ctypes` differ from those found in the widely adopted C standard header `stdint.h`. See the following table for the mappings:
 
-| C Type (`stdint.h`) | FreePascal Type (`ctypes`) | Description
-|---------------------|----------------------------|---------------------------------
-| `int8_t`            | `cint8`                    | 8-bit signed integer
-| `uint8_t`           | `cuint8`                   | 8-bit unsigned integer
-| `int16_t`           | `cint16`                   | 16-bit signed integer
-| `uint16_t`          | `cuint16`                  | 16-bit unsigned integer
-| `int32_t`           | `cint32`                   | 32-bit signed integer
-| `uint32_t`          | `cuint32`                  | 32-bit unsigned integer
-| `int64_t`           | `cint64`                   | 64-bit signed integer
-| `uint64_t`          | `cuint64`                  | 64-bit unsigned integer
-| `float`             | `cfloat`                   | 32-bit floating point number
-| `double`            | `cdouble`                  | 64-bit floating point number
-| `long double`       | `clongdouble`              | Extended precision float
-| `bool` / `_Bool`    | `cbool`                    | Boolean type (typically 1 byte)
-| `size_t`            | `csize_t`                  | Unsigned type used for sizes and indexing
-| `char`              | `cchar`                    | Single character (typically 1 byte)
-
-> 💡 Note: While the functionality is equivalent, the naming conventions differ. This can lead to confusion when porting C code or writing bindings, especially when using automated tools or macros that expect `stdint.h` names.
+> **⚠️ Warning:**  
+> - In `ctypes.pas`, `cbool` is mapped to `longbool`, which occupies **4 bytes** and uses `-1` to represent `true`.  
+>   This can lead to subtle bugs when translating modern C code: starting with **C23**, `_Bool` / `bool` typically occupies **1 byte**, with `1` representing `true`.  
+> - The size of `long` differs by platform:  
+>   - On **Linux**, `long` is usually **64-bit**.  
+>   - On **Windows**, `long` is typically **32-bit**.  
+> - Be careful with `wchar_t`: it does **not** map directly to FreePascal's `WideChar`. The size and encoding of `wchar_t` vary between platforms and compilers, so explicit handling is required for correct interoperability.
 
 Handling strings presents a particularly tricky challenge. In C, strings are represented as null-terminated arrays of characters and lack built-in memory management. In contrast, FreePascal strings are managed by the language itself and do not rely on null-termination. For interoperability, the appropriate type in FreePascal is `PChar`, which corresponds to a C-style `char*`.
 
@@ -78,7 +69,8 @@ type
 ```
 > 💡 Without {$PACKRECORDS C}, FreePascal might insert padding differently, leading to mismatches in memory layout when exchanging data with C code.
 
-Enumeration types are generally straightforward to convert between C and FreePascal, as both compilers typically represent them internally as integers starting from index 0. However, in C it is quite common to use enums for array indexing. This becomes problematic when developers break the typical sequential numbering and assign custom constants to specific enum values - such as seen in projects like [FPC_Doom](https://github.com/PascalCorpsman/FPC_DOOM)
+
+Enumeration types are relatively easy to port from C to FreePascal. The enum itself should be declared as `cint`, and all elements of the original C enum should be converted into constants — as demonstrated in projects like [FPC_Doom](https://github.com/PascalCorpsman/FPC_DOOM).
 
 Here is a example how to convert this:
 ```c
@@ -94,13 +86,18 @@ converts to
 
 ```pascal
 type
-  TWeaponType = (WEAPON_PISTOL = 0, WEAPON_SHOTGUN = 1, WEAPON_ROCKET = 10);
+  TWeaponType = cint;
+const 
+  WEAPON_PISTOL = 0;
+  WEAPON_SHOTGUN = 1;
+  WEAPON_ROCKET = 10;
 var
   weaponDamage: array[0..10] of Integer;
 begin
-  weaponDamage[Ord(WEAPON_ROCKET)] := 100;
+  weaponDamage[WEAPON_ROCKET] := 100;
 end;
 ```
+
 Unions are available in both C and FreePascal and can generally be translated 1:1 between the two languages.
 
 ```c
@@ -124,14 +121,33 @@ type
 ```
 >💡 Note: In FreePascal, unions are implemented using variant records with a case selector. The selector value is not stored unless explicitly declared, so it serves only as a syntactic mechanism to define overlapping fields.
 
-Bitfield data types do not exist natively in FreePascal. Even in C, they are merely a compiler-level construct that emulates bit-level storage and access behind the scenes and can differ from c compiler to c compiler. Whenever possible, such constructs should be refactored during porting. If refactoring is not feasible, equivalent behavior must be implemented in FreePascal using manual bit manipulation.
+Bitfields can be ported using the following approach:
+
+```c
+struct test_struct_t {
+    unsigned Field1Bit: 1;
+    unsigned Field2Bit: 2;
+    unsigned Field5Bit: 5;
+}
+```
+converts to
+
+```pascal
+type
+  test_struct_t = bitpacked Record
+    Field1Bit: 0..(1 Shl 1) - 1;
+    Field2Bit: 0..(1 Shl 2) - 1;
+    Field5Bit: 0..(1 Shl 5) - 1;
+  End;
+```
+
+If bit fields are part of the interface, they must be ported one-to-one. However, if they are only part of an internal structure, it can actually be more efficient to omit `bitpacked` for performance reasons. This is because the compiler needs to insert complex bit manipulation operations behind the scenes to allow access. Today, the additional memory consumption is negligible compared to the computational overhead required for these operations.
 
 Simple `#define` constants can usually be translated 1:1 into FreePascal using `const` declarations. However, preprocessor macros—especially those involving parameters, token pasting (`##`), or conditional logic—must be manually "unfolded" and rewritten in Pascal. This process can be non-trivial and often requires a deep understanding of the macro's expansion behavior.
 
 ```c
 #define SQUARE(x) ((x) * (x))
 ```
-
 converts to 
 
 ```pascal
@@ -139,6 +155,21 @@ function SQUARE(x: Integer): Integer; inline;
 begin
   Result := x * x;
 end;
+```
+> **⚠️ Warning:**  
+> At this point, a word of caution: the C preprocessor **replaces** `#define` macros before compilation. A call such as `j = SQUARE(i++);` can lead to highly unintuitive results.
+> The correct translation in FreePascal would be:  
+> ```pascal
+> j := (i + 1) * i;
+> i := i + 1;
+> ```
+> See also [lessons_learned](https://github.com/PascalCorpsman/FPC_DOOM/blob/main/lessons_learned.md) from the FPC_Doom porting process.
+
+C headers often contain `static inline` functions that are not exported. These functions must be manually ported and made available to the FreePascal code.
+An example would be:
+
+```c
+static inline double square(double x) { return x * x; }
 ```
 
 Now that we've covered type definitions and constants, we can turn our attention to the actual porting of functions and procedures, including their parameters. As an example, consider the following C function:
@@ -168,7 +199,9 @@ This distinction reflects their intended usage: `data` is read-only, while `res`
 
 Due to differences in how the FreePascal and C compilers handle the call stack and function calling conventions, it is essential to explicitly mark ported function declarations with the `cdecl` keyword. This ensures that the function uses the C calling convention, which is necessary for correct parameter passing and stack cleanup when interfacing with C libraries.
 
-> 💡 Without cdecl, the compiler may use the default Pascal calling convention, which can lead to stack corruption or crashes when calling external C functions.
+> **💡 Hint:**
+> Without `cdecl`, the compiler may use the default Pascal calling convention, which can lead to stack corruption or crashes when calling external C functions.  
+> **Important:** When making system API calls on Windows, the calling convention may not be `cdecl` but `stdcall`. Always verify the correct convention for each function and declare it explicitly in your FreePascal code to avoid runtime errors.
 
 The `cdecl` keyword must also be used when defining callback types to ensure that the calling convention matches that of the C code.
 
