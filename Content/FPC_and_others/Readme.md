@@ -158,10 +158,10 @@ end;
 ```
 > **⚠️ Warning:**  
 > At this point, a word of caution: the C preprocessor **replaces** `#define` macros before compilation. A call such as `j = SQUARE(i++);` can lead to highly unintuitive results.
-> The correct translation in FreePascal would be:  
+> The correct translation of `j = SQUARE(i++);` in this case to FreePascal would be:  
 > ```Pascal
 > j := (i + 1) * i;
-> i := i + 1;
+> i := i + 2;
 > ```
 > See also [lessons_learned](https://github.com/PascalCorpsman/FPC_DOOM/blob/main/lessons_learned.md) from the FPC_Doom porting process.
 
