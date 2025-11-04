@@ -20,12 +20,12 @@
  */
 void called_from_c(void)
 {
-    printf("Called from C\n");
+    std::printf("Called from C\n");
 }
 
 int main(void)
 {
-    printf("This is the FPC and others demo application.\n");
+    std::printf("This is the FPC and others demo application.\n");
     /*
      * "Test" calls to all in shared declared functions..
      */
@@ -37,7 +37,7 @@ int main(void)
     print_a_plus_b(20, 22);
 
     int c = calc_a_plus_b(21, 21);
-    printf("C = %d\n", c);
+    std::printf("C = %d\n", c);
 
     uint8_t arr[4] = {1, 2, 3, 4};
     plott_array(arr, 4);

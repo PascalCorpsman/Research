@@ -18,5 +18,5 @@
 
 void print_HelloWorld_from_a(void)
 {
-    printf("Hello World from a.\n");
+    std::printf("Hello World from a.\n");
 }

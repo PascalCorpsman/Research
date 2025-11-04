@@ -17,12 +17,12 @@
 
 void print_HelloWorld(void)
 {
-    printf("Hello World.\n");
+    std::printf("Hello World.\n");
 }
 
 void print_a_plus_b(int a, int b)
 {
-    printf("A + B = %d\n", a + b);
+    std::printf("A + B = %d\n", a + b);
 }
 
 int calc_a_plus_b(int a, int b)
@@ -35,12 +35,12 @@ void plott_array(const uint8_t *array, uint8_t length)
     if (!array)
         return;
 
-    printf("Array: ");
+    std::printf("Array: ");
     for (uint8_t i = 0; i < length; ++i)
     {
         printf("%u ", array[i]);
     }
-    printf("\n");
+    std::printf("\n");
 }
 
 void print_struct_element(const MyStruct_t &s, MyEnum_t e)
@@ -48,19 +48,19 @@ void print_struct_element(const MyStruct_t &s, MyEnum_t e)
     switch (e)
     {
     case eA:
-        printf("MyStruct_t.a = %u\n", s.a);
+        std::printf("MyStruct_t.a = %u\n", s.a);
         break;
     case eB:
-        printf("MyStruct_t.b = %u\n", s.b);
+        std::printf("MyStruct_t.b = %u\n", s.b);
         break;
     case eC:
-        printf("MyStruct_t.c = %u\n", s.c);
+        std::printf("MyStruct_t.c = %u\n", s.c);
         break;
     case eD:
-        printf("MyStruct_t.d = %u\n", s.d);
+        std::printf("MyStruct_t.d = %u\n", s.d);
         break;
     default:
-        printf("unknown enum\n");
+        std::printf("unknown enum\n");
     }
 }
 
@@ -78,7 +78,7 @@ public:
 
     void B(int c)
     {
-        printf("DummyClass.B(%d)\n", c);
+        std::printf("DummyClass.B(%d)\n", c);
         a += c;
     }
 };
@@ -108,6 +108,6 @@ void print_a_from_Dummy_class(DummyClass *ptr)
 {
     if (ptr)
     {
-        printf("Dummy_class.A = %d\n", ptr->a);
+        std::printf("Dummy_class.A = %d\n", ptr->a);
     }
 }

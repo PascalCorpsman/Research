@@ -7,7 +7,7 @@ object Form1: TForm1
   ClientHeight = 512
   ClientWidth = 1049
   Position = poScreenCenter
-  LCLVersion = '4.99.0.0'
+  LCLVersion = '3.99.0.0'
   OnClose = FormClose
   OnCreate = FormCreate
   object GroupBox1: TGroupBox
@@ -16,8 +16,8 @@ object Form1: TForm1
     Top = 96
     Width = 441
     Caption = ' C code from statically linked shared_o.o '
-    ClientHeight = 343
-    ClientWidth = 439
+    ClientHeight = 340
+    ClientWidth = 437
     TabOrder = 0
     object Button1: TButton
       Left = 16
@@ -39,7 +39,7 @@ object Form1: TForm1
     end
     object Edit1: TEdit
       Left = 195
-      Height = 26
+      Height = 23
       Top = 64
       Width = 80
       TabOrder = 2
@@ -47,7 +47,7 @@ object Form1: TForm1
     end
     object Edit2: TEdit
       Left = 307
-      Height = 26
+      Height = 23
       Top = 64
       Width = 80
       TabOrder = 3
@@ -55,16 +55,16 @@ object Form1: TForm1
     end
     object Label1: TLabel
       Left = 176
-      Height = 16
+      Height = 15
       Top = 74
-      Width = 9
+      Width = 8
       Caption = 'A'
     end
     object Label2: TLabel
       Left = 285
-      Height = 16
+      Height = 15
       Top = 74
-      Width = 8
+      Width = 7
       Caption = 'B'
     end
     object Button3: TButton
@@ -87,7 +87,7 @@ object Form1: TForm1
     end
     object Edit3: TEdit
       Left = 176
-      Height = 26
+      Height = 23
       Top = 127
       Width = 211
       TabOrder = 6
@@ -116,8 +116,8 @@ object Form1: TForm1
       ChildSizing.ShrinkVertical = crsScaleChilds
       ChildSizing.Layout = cclLeftToRightThenTopToBottom
       ChildSizing.ControlsPerLine = 2
-      ClientHeight = 105
-      ClientWidth = 142
+      ClientHeight = 102
+      ClientWidth = 140
       Columns = 2
       ItemIndex = 0
       Items.Strings = (
@@ -130,14 +130,14 @@ object Form1: TForm1
     end
     object Label3: TLabel
       Left = 176
-      Height = 16
+      Height = 15
       Top = 178
-      Width = 9
+      Width = 8
       Caption = 'A'
     end
     object Edit4: TEdit
       Left = 195
-      Height = 26
+      Height = 23
       Top = 168
       Width = 80
       TabOrder = 9
@@ -145,14 +145,14 @@ object Form1: TForm1
     end
     object Label4: TLabel
       Left = 176
-      Height = 16
+      Height = 15
       Top = 210
-      Width = 8
+      Width = 7
       Caption = 'B'
     end
     object Edit5: TEdit
       Left = 195
-      Height = 26
+      Height = 23
       Top = 200
       Width = 80
       TabOrder = 10
@@ -160,14 +160,14 @@ object Form1: TForm1
     end
     object Label5: TLabel
       Left = 176
-      Height = 16
+      Height = 15
       Top = 242
       Width = 8
       Caption = 'C'
     end
     object Edit6: TEdit
       Left = 195
-      Height = 26
+      Height = 23
       Top = 232
       Width = 80
       TabOrder = 11
@@ -175,14 +175,14 @@ object Form1: TForm1
     end
     object Label6: TLabel
       Left = 176
-      Height = 16
+      Height = 15
       Top = 274
-      Width = 9
+      Width = 8
       Caption = 'D'
     end
     object Edit7: TEdit
       Left = 195
-      Height = 26
+      Height = 23
       Top = 264
       Width = 80
       TabOrder = 12
@@ -204,8 +204,8 @@ object Form1: TForm1
     Top = 96
     Width = 321
     Caption = '  C++ code from statically linked shared_o.o '
-    ClientHeight = 168
-    ClientWidth = 319
+    ClientHeight = 165
+    ClientWidth = 317
     TabOrder = 1
     object Button7: TButton
       Left = 8
@@ -245,7 +245,7 @@ object Form1: TForm1
     end
     object Edit8: TEdit
       Left = 224
-      Height = 26
+      Height = 23
       Top = 48
       Width = 80
       TabOrder = 4
@@ -258,8 +258,8 @@ object Form1: TForm1
     Top = 8
     Width = 321
     Caption = ' C code from statically linked shared_a.a'
-    ClientHeight = 55
-    ClientWidth = 319
+    ClientHeight = 52
+    ClientWidth = 317
     TabOrder = 2
     object Button11: TButton
       Left = 75
@@ -277,8 +277,8 @@ object Form1: TForm1
     Top = 8
     Width = 321
     Caption = ' C code from implicit binded lishared1.so '
-    ClientHeight = 55
-    ClientWidth = 319
+    ClientHeight = 52
+    ClientWidth = 317
     TabOrder = 3
     object Button12: TButton
       Left = 75
@@ -296,8 +296,8 @@ object Form1: TForm1
     Top = 8
     Width = 321
     Caption = ' C code from runtime linked lishared2.so '
-    ClientHeight = 55
-    ClientWidth = 319
+    ClientHeight = 52
+    ClientWidth = 317
     TabOrder = 4
     object Button13: TButton
       Left = 75

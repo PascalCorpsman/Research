@@ -3,5 +3,5 @@
 
 void print_HelloWorld_from_lib2(void)
 {
-    printf("Hello World from lib2.\n");
+    std::printf("Hello World from lib2.\n");
 }

@@ -57,7 +57,7 @@ struct Example {
 };
 ```
 Converts to 
-```pascal
+```Pascal
 {$mode objfpc}
 {$PACKRECORDS C}
 
@@ -84,7 +84,7 @@ int weaponDamage[11]; // Indexed by WeaponType
 ```
 converts to
 
-```pascal
+```Pascal
 type
   TWeaponType = cint;
 const 
@@ -109,7 +109,7 @@ union Data {
 ```
 converts to
 
-```pascal
+```Pascal
 type
   TData = record
     case Integer of
@@ -132,7 +132,7 @@ struct test_struct_t {
 ```
 converts to
 
-```pascal
+```Pascal
 type
   test_struct_t = bitpacked Record
     Field1Bit: 0..(1 Shl 1) - 1;
@@ -150,7 +150,7 @@ Simple `#define` constants can usually be translated 1:1 into FreePascal using `
 ```
 converts to 
 
-```pascal
+```Pascal
 function SQUARE(x: Integer): Integer; inline;
 begin
   Result := x * x;
@@ -159,7 +159,7 @@ end;
 > **⚠️ Warning:**  
 > At this point, a word of caution: the C preprocessor **replaces** `#define` macros before compilation. A call such as `j = SQUARE(i++);` can lead to highly unintuitive results.
 > The correct translation in FreePascal would be:  
-> ```pascal
+> ```Pascal
 > j := (i + 1) * i;
 > i := i + 1;
 > ```
@@ -182,12 +182,12 @@ This function takes a pointer to an integer array (data), its length (len), and 
 
 it is naive converted to
 
-```pascal
+```Pascal
 function magic_function(data: PCint; len: cint; res: PCint): cbool; cdecl;
 ```
 While the ported function is technically correct, it may feel unintuitive or cumbersome for typical FreePascal developers due to the use of raw pointers and C-style types. A more idiomatic and readable version could look like this:
 
-```pascal
+```Pascal
 function magic_function(const data: array of cint; len: cint; out res: Integer): cBool; cdecl;
 ```
 
@@ -210,7 +210,7 @@ typedef void (*log_callback_t)(const char* message);
 ```
 converts to 
 
-```pascal
+```Pascal
 type
   TLogCallback = procedure(message: PChar); cdecl;
 ```
@@ -221,7 +221,7 @@ The examples above all demonstrate how FreePascal code can call into C libraries
 
 In such cases, the FreePascal code must explicitly define and export the required functions using the correct name and calling convention. A common example is providing a standard C function like `memset`, which may be expected by older or embedded C libraries.
 
-```pascal
+```Pascal
 function memset(str: Pointer; c: cInt; n: csize_t): Pointer; cdecl; public name
   {$IFDEF CPU64} 'memset' {$ELSE} '_memset' {$ENDIF};
 ```
@@ -293,7 +293,6 @@ The most commonly used approach for reusing external code in FreePascal is throu
 
 To port the corresponding C header files, you can follow the guidelines outlined earlier in this article. Tools like [`h2pas`](https://wiki.freepascal.org/H2Pas) can assist in generating initial bindings, and AI-based tools may further the process—though manual review is always recommended.
 
-
 In general, there are two ways to integrate libraries into one's own code:
 **dynamic linking with implicit bindings** and **dynamic linking at runtime**.  
 In the following sections, the advantages and disadvantages of both approaches will be discussed separately.
@@ -327,9 +326,9 @@ In the following sections, the advantages and disadvantages of both approaches w
 
 ### Special Case: Integrating Intermediate Compilation Artifacts (.a, .o)
 
-While the two approaches discussed above can be applied to many programming languages, this chapter focuses on a special case: integrating C/C++ artifacts into FreePascal.
+While the two approaches discussed above can be applied to many programming languages, this chapter focuses on a special case: integrating C/C++ artifacts in the form of **ELF files** (on Linux) or **Portable Executable (PE) files** (on Windows) into FreePascal.
 
-This scenario is relevant because C and C++ are extremely widespread, and their combination with FreePascal offers unique advantages. By leveraging intermediate compilation artifacts such as `.a` (static libraries) and `.o` (object files), developers can reuse existing codebases efficiently without requiring full source-level integration. Moreover, compiling these artifacts manually enables full debugging support within the Lazarus IDE, as developers can include debug symbols during the build process.
+This scenario is particularly relevant because C and C++ are extremely widespread, and their combination with FreePascal offers unique advantages. By leveraging ELF or PE files such as `.a` (static libraries) and `.o` (object files), developers can efficiently reuse existing codebases without requiring full source-level integration. Moreover, compiling these files manually allows full debugging support within the Lazarus IDE, as debug symbols can be included during the build process.
 
 The exact techniques for achieving this integration will be demonstrated using the provided demo code. For this reason, this section focuses on an overview and highlights only the key specifics rather than a full step-by-step guide.
 
@@ -337,7 +336,7 @@ The exact techniques for achieving this integration will be demonstrated using t
 Convert the required headers to FreePascal units, either manually or using **H2Pas**.
 2. Link C/C++ libraries:<br>
    - If the code uses standard C functions (e.g., `printf`), link the C runtime library:
-     ```pascal
+     ```Pascal
      {$IFDEF Windows}
        {$LINKLIB msvcrt}
      {$ELSE}
@@ -345,7 +344,7 @@ Convert the required headers to FreePascal units, either manually or using **H2P
      {$ENDIF}
      ```
    - If the code uses C++ features, link the C++ standard library:
-     ```pascal
+     ```Pascal
      {$IFDEF Windows}
        {$LINKLIB libstdc++.dll.a} // this could differ on your machine, depending on the used gcc   compiler
      {$ELSE}
@@ -355,12 +354,12 @@ Convert the required headers to FreePascal units, either manually or using **H2P
 3. Link g++ Output Files<br>
    Depending on the artifact type:  
    - For `.a` files (static libraries):
-     ```pascal
+     ```Pascal
      {$LINKLIB libshared_a.a}
      ```
 
    - For `.o` files (object files):
-     ```pascal
+     ```Pascal
      {$LINK obj/shared_o.o}
      ```
 #### ✅ Advantages
@@ -374,6 +373,28 @@ Convert the required headers to FreePascal units, either manually or using **H2P
 - On Windows, setup can be complex (e.g., **Cygwin**, **MSYS2**), while Linux environments are typically easier.
 - Increases build complexity, especially when mixing multiple platforms or architectures.
 - Potential for ABI incompatibilities between C/C++ and FreePascal if compiler settings differ.
+- C/C++ code needs to be "wellformed" (not having static initializer)
+
+> **⚠️ Warning:** 
+
+The procedure described above carries additional risks that should be pointed out here. By directly embedding the code, the initializers are not called. As a result, the following code produces incorrect results when executed:
+
+```C
+extern "C" int test;
+
+static int foo = 4;
+int test = foo + 3;
+```
+
+```Pascal
+{$Link ctest.o}
+var test: Integer; external;
+
+begin
+  WriteLn(test); // Will print 0, instead of 7 !
+end.
+```
+This effect is only mitigated by the fact that static initializations are hopefully becoming increasingly rare, since the underlying code is significantly harder to test. This also applies to the example shown above.
 
 ### Compile / Run the Demo Application
 Setting up the build environment differs significantly between Windows and Linux:  
@@ -382,18 +403,12 @@ Setting up the build environment differs significantly between Windows and Linux
 Make sure the correct toolchain is available before compiling to avoid linker errors.
 
 #### Windows:
-
-- As the uploaded code is designed to be used under Linux you need to switch from `build.sh` to `build.bat`.
-  ![](Windows_setup_Build_Mode.png)
 - Set up **MinGW** (or an equivalent toolchain) if not already installed.
+- Find the correct replacements for "libmsvcrt.a" and "libstdc++.dll.a" for your choosen compiler
 - Press **F9** to build and run the application.
 
 #### Linux:
-- make "build.sh" executable (chmod +x build.sh)
-- Use **CTRL + F9** to compile.
-- Execute `install_libshared1_so.sh`  
-  *(If this step is skipped, the debugger will crash because the implicid binded library is missing.)*
-- Press **F9**, run, and have fun 😉
+- Press **F9** to build and run the application.
 
 If everything worked correctly, the application should start and look approximately like this:
 ![](preview.png)
@@ -415,3 +430,4 @@ If the code is **not transpiled**, the following considerations are essential:
 - Ensure proper memory management across language boundaries to prevent leaks or crashes.
 - Pay attention to calling conventions and data type alignment to maintain ABI compatibility.
 - Debugging support depends on whether debug symbols are included during compilation and whether the Lazarus- IDE is configured correctly.
+- Including **ELF files** or **PE files** is generally easier under **Linux**, as the system presents fewer pitfalls that could lead to errors.

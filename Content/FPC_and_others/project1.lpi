@@ -18,6 +18,15 @@
     </PublishOptions>
     <RunParams>
       <FormatVersion Value="2"/>
+      <Modes>
+        <Mode Name="default">
+          <environment>
+            <UserOverrides Count="1">
+              <Variable0 Name="LD_LIBRARY_PATH" Value="."/>
+            </UserOverrides>
+          </environment>
+        </Mode>
+      </Modes>
     </RunParams>
     <RequiredPackages>
       <Item>
@@ -43,19 +52,7 @@
         <UnitName Value="uCWrapper"/>
       </Unit>
       <Unit>
-        <Filename Value="build.bat"/>
-        <IsPartOfProject Value="True"/>
-      </Unit>
-      <Unit>
-        <Filename Value="build.sh"/>
-        <IsPartOfProject Value="True"/>
-      </Unit>
-      <Unit>
-        <Filename Value="Install_libshared1_so.sh"/>
-        <IsPartOfProject Value="True"/>
-      </Unit>
-      <Unit>
-        <Filename Value="UnInstall_libshared1_so.sh"/>
+        <Filename Value="makefile"/>
         <IsPartOfProject Value="True"/>
       </Unit>
     </Units>
@@ -87,7 +84,8 @@
     </Linking>
     <Other>
       <ExecuteBefore>
-        <Command Value="build.sh"/>
+        <Command Value="make all"/>
+        <ScanForMakeMsgs Value="True"/>
         <CompileReasons Run="False"/>
       </ExecuteBefore>
     </Other>
